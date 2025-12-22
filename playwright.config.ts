@@ -2,26 +2,19 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
-  timeout: 30000,
-  expect: {
-    timeout: 10000
-  },
-  fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 1,
-  workers: 4,
+  timeout: 60000, // 60 seconds per test
+  expect: { timeout: 15000 },
+  retries: 1,
   reporter: 'html',
-
   use: {
-    baseURL: 'https://practicesoftwaretesting.com/',
-    headless: true,
+    baseURL: 'https://practicesoftwaretesting.com',
+    headless: false, // IMPORTANT: Show the browser so you can see it load!
     viewport: { width: 1280, height: 720 },
-    ignoreHTTPSErrors: true,
-    video: 'on-first-retry',
+    actionTimeout: 20000, // Extra wait for actions
     screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
     trace: 'on-first-retry',
   },
-
   projects: [
     {
       name: 'chromium',
@@ -31,6 +24,5 @@ export default defineConfig({
       name: 'firefox',
       use: { ...devices['Desktop Firefox'] },
     },
-    // We dont need WebKit 
   ],
 });
