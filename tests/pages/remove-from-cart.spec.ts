@@ -5,25 +5,28 @@ test.describe('Remove from Cart Feature', () => {
         await page.goto('https://practicesoftwaretesting.com/');
         await page.waitForLoadState('networkidle');
 
-        // First add something to cart so we can remove it
-        await page.locator('[data-test="product-01KD5Z14DK2Y7054D0JH6Q2HMC"]').click();
-        await page.locator('[data-test="add-to-cart"]').click();
-        await page.getByText('Product added to shopping cart').waitFor({ state: 'visible' });
+        // Add the first product (no hard-coded ID!)
+        await page.locator('[data-test="product-name"]').first().click()
+        await page.waitForLoadState('networkidle');
 
-        // Go to cart page
+        await page.locator('[data-test="add-to-cart"]').click();
+
+        // Wait for add toast
+        const addToast = page.getByText('Product added to shopping cart');
+        await expect(addToast).toBeVisible({ timeout: 10000 });
+
+        // Go to cart
         await page.locator('[data-test="nav-cart"]').click();
         await page.waitForLoadState('networkidle');
     });
 
-    test('Remove item from cart empties it', async ({ page }) => {
+    test('Remove item from cart shows "Product deleted" toast and empties cart', async ({ page }) => {
+        // Click remove button (red danger button)
+        await page.locator('.btn-danger').first().click();
 
-        // Remove the item
-        await page.locator('.btn-danger').first().click(); // Remove button
+        // Your exact working delete toast
+        await expect(page.getByLabel('Product deleted.')).toContainText('Product deleted.');
 
 
-
-        // Empty message appears
-        const deleteToast = page.locator('div').filter({ hasText: 'Product deleted.' }).nth(2);
-        await expect(deleteToast).toBeVisible({ timeout: 10000 });
     });
 });

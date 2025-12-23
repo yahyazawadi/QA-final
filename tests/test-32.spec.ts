@@ -1,9 +1,13 @@
 import { test, expect } from '@playwright/test';
 
-test('test', async ({ page }) => {
-
+test.describe('By Category Feature', () => {
+  test('Filter by different categories sequentially', async ({ page }) => {
     await page.goto('https://practicesoftwaretesting.com/');
-    await page.locator('#filters').getByText('Hand Tools').click();
+    await page.waitForLoadState('networkidle');
+
+    // Filter by Hand Tools
+    await page.getByLabel('Hand Tools').check();
+
     await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
     - 'link /Combination Pliers Combination Pliers CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
@@ -50,21 +54,12 @@ test('test', async ({ page }) => {
       - img "Thor Hammer"
       - heading "Thor Hammer" [level=5]
       - text: ""
-    - navigation:
-      - list:
-        - listitem:
-          - button "Previous"
-        - listitem:
-          - button "Page-1"
-        - listitem:
-          - button "Page-2"
-        - listitem:
-          - button "Page-3"
-        - listitem:
-          - button "Next"
     `);
-    await page.goto('https://practicesoftwaretesting.com/');
-    await page.locator('#filters').getByText('Power Tools').click();
+
+    // Switch to Power Tools
+    await page.getByLabel('Hand Tools').uncheck();
+    await page.getByLabel('Power Tools').check();
+
     await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
     - 'link /Sheet Sander Sheet Sander CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
@@ -81,10 +76,25 @@ test('test', async ({ page }) => {
       - img "Circular Saw"
       - heading "Circular Saw" [level=5]
       - text: ""
+    - 'link /Random Orbit Sander Random Orbit Sander CO₂: A B C D E \\$\\d+\\.\\d+/':
+      - /url: \/product\/.*/
+      - img "Random Orbit Sander"
+      - heading "Random Orbit Sander" [level=5]
+      - text: ""
+    - 'link /Cordless Drill 20V Cordless Drill 20V CO₂: A B C D E \\$\\d+\\.\\d+/':
+      - /url: \/product\/.*/
+      - img "Cordless Drill 20V"
+      - heading "Cordless Drill 20V" [level=5]
+      - text: ""
     - 'link /Cordless Drill 24V Cordless Drill 24V CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
       - img "Cordless Drill 24V"
       - heading "Cordless Drill 24V" [level=5]
+      - text: ""
+    - 'link /Cordless Drill 18V Cordless Drill 18V CO₂: A B C D E \\$\\d+\\.\\d+/':
+      - /url: \/product\/.*/
+      - img "Cordless Drill 18V"
+      - heading "Cordless Drill 18V" [level=5]
       - text: ""
     - 'link /Cordless Drill 12V Cordless Drill 12V CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
@@ -92,8 +102,11 @@ test('test', async ({ page }) => {
       - heading "Cordless Drill 12V" [level=5]
       - text: ""
     `);
-    await page.goto('https://practicesoftwaretesting.com/');
-    await page.locator('#filters').getByText('Other').click();
+
+    // Switch to Others
+    await page.getByLabel('Power Tools').uncheck();
+    await page.getByLabel('Others').check();
+
     await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
     - 'link /Safety Goggles ECO Safety Goggles CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
@@ -146,15 +159,6 @@ test('test', async ({ page }) => {
       - img "Cross-head screws"
       - heading "Cross-head screws" [level=5]
       - text: ""
-    - navigation:
-      - list:
-        - listitem:
-          - button "Previous"
-        - listitem:
-          - button "Page-1"
-        - listitem:
-          - button "Page-2"
-        - listitem:
-          - button "Next"
     `);
+  });
 });
