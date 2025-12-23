@@ -1,13 +1,12 @@
-
 import { Page, Locator } from '@playwright/test';
 
 export class HomePage {
     readonly page: Page;
-    readonly firstProduct: Locator;
+    readonly firstProductName: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.firstProduct = page.locator('[data-test="product-name"]').first();
+        this.firstProductName = page.locator('[data-test="product-name"]').first();
     }
 
     async goto() {
@@ -16,7 +15,7 @@ export class HomePage {
     }
 
     async openFirstProduct() {
-        await this.firstProduct.click();
+        await this.firstProductName.click();
         await this.page.waitForLoadState('networkidle');
     }
 }

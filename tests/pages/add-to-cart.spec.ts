@@ -1,34 +1,39 @@
+// add-to-cart.spec.ts
 import { test, expect } from '@playwright/test';
+import { HomePage } from '../POMs/HomePage';
+import { ProductDetailPage } from '../POMs/ProductDetailPage';
 
 test.describe('Add to Cart Feature', () => {
+    let homePage: HomePage;
+    let productDetailPage: ProductDetailPage;
+
     test.beforeEach(async ({ page }) => {
-        await page.goto('https://practicesoftwaretesting.com/');
-        await page.waitForLoadState('networkidle');
+        homePage = new HomePage(page);
+        await homePage.goto();
     });
 
     test('Add product to cart shows toast and updates badge', async ({ page }) => {
-        // Go to a product detail page
-        await page.locator('[data-test="product-name"]').first().click()
-        await page.waitForLoadState('networkidle');
+        await homePage.openFirstProduct();
 
-        // Add to cart
-        await page.locator('[data-test="add-to-cart"]').click();
+        productDetailPage = new ProductDetailPage(page);
+        await productDetailPage.addToCart();
 
-        // Success toast appears
-        const toast = page.getByText('Product added to shopping cart');
-        await expect(toast).toBeVisible({ timeout: 10000 });
+        // Verify success toast
+        await productDetailPage.expectToast();
     });
 
     test('Add multiple quantity before adding to cart', async ({ page }) => {
-        await page.locator('[data-test="product-name"]').first().click()
-        await page.waitForLoadState('networkidle');
+        await homePage.openFirstProduct();
 
-        // Increase quantity to 3
-        await page.locator('[data-test="increase-quantity"]').click();
-        await page.locator('[data-test="increase-quantity"]').click();
+        productDetailPage = new ProductDetailPage(page);
 
-        await page.locator('[data-test="add-to-cart"]').click();
-        await expect(page.getByLabel('Product added to shopping')).toContainText('Product added to shopping cart.');
-        await expect(page.locator('[data-test="cart-quantity"]')).toContainText('3');
+        // Set quantity to 3 (default is 1, so click increase twice)
+        await productDetailPage.setQuantity(3);
+
+        await productDetailPage.addToCart();
+
+        // Verify toast and cart badge shows correct quantity
+        await productDetailPage.expectToast();
+        await productDetailPage.expectCartBadgeToShow('3');
     });
 });
