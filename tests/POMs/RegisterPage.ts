@@ -1,5 +1,5 @@
 
-import { Page, Locator } from '@playwright/test';
+import { Page } from '@playwright/test';
 
 export class RegisterPage {
     readonly page: Page;
@@ -9,11 +9,11 @@ export class RegisterPage {
     }
 
     async goto() {
-        await this.page.goto('/auth/register');
+        await this.page.goto('https://practicesoftwaretesting.com/auth/register');
         await this.page.waitForLoadState('networkidle');
     }
 
-    async register() {
+    async fillRegistrationForm() {
         await this.page.locator('[data-test="first-name"]').fill(process.env.TEST_FIRST_NAME!);
         await this.page.locator('[data-test="last-name"]').fill(process.env.TEST_LAST_NAME!);
         await this.page.locator('[data-test="dob"]').fill(process.env.TEST_DATE_OF_BIRTH!);

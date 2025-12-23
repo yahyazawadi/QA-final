@@ -1,31 +1,23 @@
 import { test, expect } from '@playwright/test';
+import { LoginPage } from '../POMs/LoginPage';
 
 test.describe('Login Feature', () => {
+    let loginPage: LoginPage;
+
     test.beforeEach(async ({ page }) => {
-        await page.goto('https://practicesoftwaretesting.com/auth/login');
-        await page.waitForLoadState('networkidle');
+        loginPage = new LoginPage(page);
+        await loginPage.goto();
     });
 
-    test('Successful login redirects to home and shows user menu', async ({ page }) => {
-        await page.locator('[data-test="email"]').fill(process.env.TEST_EMAIL!);
-        await page.locator('[data-test="password"]').fill(process.env.TEST_PASSWORD!);
-        await page.locator('[data-test="login-submit"]').click();
-
-        // Success = redirected to account page (as in your original code)
+    test('Successful login redirects to account page', async ({ page }) => {
+        await loginPage.login(process.env.TEST_EMAIL!, process.env.TEST_PASSWORD!);
         await expect(page).toHaveURL('https://practicesoftwaretesting.com/account', { timeout: 15000 });
     });
 
-    test('Wrong password shows error message', async ({ page }) => {
-        await page.locator('[data-test="email"]').fill(process.env.TEST_EMAIL!);
-        await page.locator('[data-test="password"]').fill('WrongPassword123!'); // Any wrong password
-        await page.locator('[data-test="login-submit"]').click();
-
-        // The error is in .alert-danger class, with text "Invalid email or password"
-        const errorAlert = page.locator('.alert-danger');
-        await expect(errorAlert).toBeVisible({ timeout: 10000 });
-        await expect(errorAlert).toContainText('Invalid email or password');
-
-        // Stay on login page
-        await expect(page).toHaveURL(/.*\/auth\/login/);
+    test('Wrong password shows error message', async () => {
+        await loginPage.login(process.env.TEST_EMAIL!, 'WrongPassword123!');
+        await expect(loginPage.errorAlert).toBeVisible({ timeout: 10000 });
+        await expect(loginPage.errorAlert).toContainText('Invalid email or password');
+        await expect(loginPage.page).toHaveURL(/.*\/auth\/login/);
     });
 });
