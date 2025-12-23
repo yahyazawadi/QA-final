@@ -7,18 +7,17 @@ test.describe('Login Feature', () => {
     });
 
     test('Successful login redirects to home and shows user menu', async ({ page }) => {
-        await page.locator('[data-test="email"]').fill('CamelliaIsGreat@gmail.com');
-        await page.locator('[data-test="password"]').fill('CamelliaIsGreat!2');
+        await page.locator('[data-test="email"]').fill(process.env.TEST_EMAIL!);
+        await page.locator('[data-test="password"]').fill(process.env.TEST_PASSWORD!);
         await page.locator('[data-test="login-submit"]').click();
 
-        // Success = redirected to home page
+        // Success = redirected to account page (as in your original code)
         await expect(page).toHaveURL('https://practicesoftwaretesting.com/account', { timeout: 15000 });
-
     });
 
     test('Wrong password shows error message', async ({ page }) => {
-        await page.locator('[data-test="email"]').fill('CamelliaIsGreat@gmail.com');
-        await page.locator('[data-test="password"]').fill('CamelliaIsGreat!2123'); // Wrong password
+        await page.locator('[data-test="email"]').fill(process.env.TEST_EMAIL!);
+        await page.locator('[data-test="password"]').fill('WrongPassword123!'); // Any wrong password
         await page.locator('[data-test="login-submit"]').click();
 
         // The error is in .alert-danger class, with text "Invalid email or password"
