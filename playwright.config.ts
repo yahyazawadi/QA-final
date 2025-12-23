@@ -1,5 +1,5 @@
 import { defineConfig, devices } from '@playwright/test';
-
+import 'dotenv/config';
 export default defineConfig({
   testDir: './tests',
   timeout: 60000, // 60 seconds per test
@@ -7,7 +7,10 @@ export default defineConfig({
   retries: 1,
   reporter: 'html',
   use: {
-    baseURL: 'https://practicesoftwaretesting.com',
+
+    baseURL: process.env.BASE_URL || 'https://practicesoftwaretesting.com',
+
+
     headless: false, // IMPORTANT: Show the browser so you can see it load!
     viewport: { width: 1280, height: 720 },
     actionTimeout: 20000, // Extra wait for actions
