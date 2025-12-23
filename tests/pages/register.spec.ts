@@ -14,8 +14,8 @@ test.describe('Register Feature', () => {
         await page.locator('[data-test="state"]').fill('test');
         await page.locator('[data-test="country"]').selectOption('AU');
         await page.locator('[data-test="phone"]').fill('094342342');
-        await page.locator('[data-test="email"]').fill(`test${Date.now()}@gmail.com`); // unique each time
-        await page.locator('[data-test="password"]').fill('Password!2asd@$@$');
+        await page.locator('[data-test="email"]').fill(`CamelliaIsGreat@gmail.com`); // unique each time
+        await page.locator('[data-test="password"]').fill('CamelliaIsGreat!2');
         await page.locator('[data-test="register-submit"]').click();
 
         // Success = redirected to login page
