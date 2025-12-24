@@ -1,4 +1,3 @@
-// tests/category.spec.ts
 import { test, expect } from '@playwright/test';
 import { ProductOverviewPage } from '../POMs/ProductOverviewPage';
 
@@ -7,7 +6,7 @@ test.describe('By Category Feature', () => {
 
   test.beforeEach(async ({ page }) => {
     overview = new ProductOverviewPage(page);
-    await overview.goto();  // Fresh page every time – correct!
+    await overview.goto();
   });
 
   test('Hand Tools category shows correct products', async () => {
