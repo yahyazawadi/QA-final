@@ -5,7 +5,7 @@ test.describe('Remove from Cart Feature', () => {
         await page.goto('https://practicesoftwaretesting.com/');
         await page.waitForLoadState('networkidle');
 
-        // Add the first product (no hard-coded ID!)
+        // Add the first product 
         await page.locator('[data-test="product-name"]').first().click()
         await page.waitForLoadState('networkidle');
 
@@ -21,10 +21,8 @@ test.describe('Remove from Cart Feature', () => {
     });
 
     test('Remove item from cart shows "Product deleted" toast and empties cart', async ({ page }) => {
-        // Click remove button (red danger button)
+        //  remove button 
         await page.locator('.btn-danger').first().click();
-
-        // Your exact working delete toast
         await expect(page.getByLabel('Product deleted.')).toContainText('Product deleted.');
 
 

@@ -7,24 +7,24 @@ test.describe('Price Range Feature', () => {
   });
 
   test('Adjust price range using slider keyboard arrows and verify filtered products', async ({ page }) => {
-    // Focus and move max handle right (increase max price)
+    // (increase max price)
     const maxHandle = page.getByRole('slider', { name: 'ngx-slider-max' });
     await maxHandle.click();
     for (let i = 0; i < 50; i++) {
       await page.keyboard.press('ArrowRight');
     }
 
-    // Focus and move min handle right (increase min price, narrow range)
+    //  (increase min price, narrow range)
     const minHandle = page.getByRole('slider', { name: 'ngx-slider', exact: true });
     await minHandle.click();
-    for (let i = 0; i < 100; i++) {
+    for (let i = 1; i < 100; i++) {
       await page.keyboard.press('ArrowRight');
     }
+    await maxHandle.click();
 
-    // Wait for products to update
-    await page.waitForResponse(resp => resp.url().includes('/products') && resp.status() === 200);
+    // Wait for  7 seconds to allow products to update
+    await page.waitForTimeout(7000);
 
-    // Use regex for URLs to ignore changing IDs
     await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
     - 'link /Random Orbit Sander Random Orbit Sander CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/

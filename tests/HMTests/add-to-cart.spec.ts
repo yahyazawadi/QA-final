@@ -27,7 +27,7 @@ test.describe('Add to Cart Feature', () => {
 
         productDetailPage = new ProductDetailPage(page);
 
-        // Set quantity to 3 (default is 1, so click increase twice)
+        //  (default is 1, so click increase twice)
         await productDetailPage.setQuantity(3);
 
         await productDetailPage.addToCart();

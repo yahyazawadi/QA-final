@@ -1,16 +1,16 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Sort Feature', () => {
-    test.beforeEach(async ({ page }) => {
-        await page.goto('https://practicesoftwaretesting.com/');
-        await page.waitForLoadState('networkidle');
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.goto('https://practicesoftwaretesting.com/');
+    await page.waitForLoadState('networkidle');
+  });
 
-    test('Sort by Name A-Z and Price High to Low updates product list', async ({ page }) => {
-        // Sort by Name A-Z
-        await page.locator('[data-test="sort"]').selectOption('name,asc');
+  test('Sort by Name A-Z and Price High to Low updates product list', async ({ page }) => {
+    // Sort by Name A-Z
+    await page.locator('[data-test="sort"]').selectOption('name,asc');
 
-        await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
+    await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
     - 'link /Adjustable Wrench Adjustable Wrench CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
       - img "Adjustable Wrench"
@@ -74,10 +74,10 @@ test.describe('Sort Feature', () => {
           - button "Next"
     `);
 
-        // Sort by Price High to Low
-        await page.locator('[data-test="sort"]').selectOption('price,desc');
+    // Sort by Price High to Low
+    await page.locator('[data-test="sort"]').selectOption('price,desc');
 
-        await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
+    await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
     - 'link /Drawer Tool Cabinet ECO Drawer Tool Cabinet CO₂: A B C D E \\$\\d+\\.\\d+/':
       - /url: \/product\/.*/
       - img "Drawer Tool Cabinet"
@@ -143,5 +143,5 @@ test.describe('Sort Feature', () => {
         - listitem:
           - button "Next"
     `);
-    });
+  });
 });
