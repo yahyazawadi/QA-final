@@ -1,4 +1,3 @@
-// add-to-cart.spec.ts
 import { test, expect } from '@playwright/test';
 import { HomePage } from '../POMs/HomePage';
 import { ProductDetailPage } from '../POMs/ProductDetailPage';
@@ -18,7 +17,6 @@ test.describe('Add to Cart Feature', () => {
         productDetailPage = new ProductDetailPage(page);
         await productDetailPage.addToCart();
 
-        // Verify success toast
         await productDetailPage.expectToast();
     });
 
@@ -27,12 +25,11 @@ test.describe('Add to Cart Feature', () => {
 
         productDetailPage = new ProductDetailPage(page);
 
-        //  (default is 1, so click increase twice)
+        //  default is 1, so click increase twice
         await productDetailPage.setQuantity(3);
 
         await productDetailPage.addToCart();
 
-        // Verify toast and cart badge shows correct quantity
         await productDetailPage.expectToast();
         await productDetailPage.expectCartBadgeToShow('3');
     });

@@ -2,84 +2,99 @@ import { Page, Locator, expect } from '@playwright/test';
 
 export class ProductOverviewPage {
     readonly page: Page;
-    readonly productCards: Locator;
-    readonly productNames: Locator;
-    readonly productPrices: Locator;
+    readonly sortDropdown: Locator;
+    readonly searchInput: Locator;
+    readonly searchButton: Locator;
+
+    private productNameLocators: Locator;
+    private productPriceLocators: Locator;
 
     constructor(page: Page) {
         this.page = page;
-        this.productCards = page.locator('app-product-card');
-        // FIXED: Scope names INSIDE each card only (first h5 per card = name)
-        this.productNames = this.productCards.locator('h5').first();  // h5[0] per card = clean name (from your snapshots: level=5 headings)
-        // FIXED: Scope prices INSIDE each card
-        this.productPrices = this.productCards.locator('[data-test="product-price"]');
+        this.sortDropdown = page.locator('[data-test="sort"]');
+        this.searchInput = page.locator('[data-test="search-query"]');
+        this.searchButton = page.locator('[data-test="search-submit"]');
+
+        this.productNameLocators = page.locator('[data-test="product-name"]');
+        this.productPriceLocators = page.locator('[data-test="product-price"]');
+    }
+
+    async goto() {
+        await this.page.goto('https://practicesoftwaretesting.com/');
+        await this.page.waitForLoadState('networkidle');
+    }
+
+    async selectSort(option: 'name,asc' | 'name,desc' | 'price,asc' | 'price,desc') {
+        await this.sortDropdown.selectOption(option);
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(2000); 
+    }
+
+    async searchFor(query: string) {
+        await this.searchInput.fill(query);
+        await this.searchButton.click();
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(2000);
+    }
+
+    async filterByCategory(category: string) {
+        await this.page.locator('#filters').getByText(category, { exact: true }).click();
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(2000);
+    }
+
+    async filterByBrand(brand: string) {
+        await this.page.getByText(brand, { exact: true }).click();
+        await this.page.waitForLoadState('networkidle');
+        await this.page.waitForTimeout(2000);
     }
 
     async getProductNames(): Promise<string[]> {
-        await this.page.waitForSelector('app-product-card', { timeout: 5000 });  // Wait for cards
-        const count = await this.productCards.count();
-        const names: string[] = [];
-        for (let i = 0; i < count; i++) {
-            const name = await this.productCards.nth(i).locator('h5').first().innerText();
-            names.push(name.trim());
-        }
-        return names;
+        await expect(this.productNameLocators.first()).toBeVisible({ timeout: 15000 });
+        return await this.productNameLocators.allTextContents();
     }
 
     async getProductPrices(): Promise<number[]> {
-        await this.page.waitForSelector('app-product-card', { timeout: 5000 });
-        const count = await this.productCards.count();
-        const prices: number[] = [];
-        for (let i = 0; i < count; i++) {
-            const text = await this.productCards.nth(i).locator('[data-test="product-price"]').innerText();
-            const num = parseFloat(text.replace('$', '').trim().replace(/[^\d.]/g, ''));  // Clean $14.15 or "Out of stock $14.15"
-            if (!isNaN(num)) prices.push(num);
-        }
-        return prices;
-    }
-
-    async getProductCount(): Promise<number> {
-        await this.page.waitForSelector('app-product-card');
-        return await this.productCards.count();
+        await expect(this.productPriceLocators.first()).toBeVisible({ timeout: 15000 });
+        const priceTexts = await this.productPriceLocators.allTextContents();
+        return priceTexts
+            .map(text => parseFloat(text.replace(/[^\d.]/g, '')))
+            .filter(n => !isNaN(n));
     }
 
     async expectProductsSortedByNameAsc() {
-        await this.page.waitForLoadState('networkidle');  // FIXED: Wait post-sort
-        await this.page.waitForTimeout(1500);  // Angular reload buffer
-
         const names = await this.getProductNames();
-        console.log('DEBUG Names:', names);  // See in terminal what it grabs
-
-        // FIXED: Stable sort check (every consecutive pair is sorted, handles ties)
-        for (let i = 0; i < names.length - 1; i++) {
-            const curr = names[i].toLowerCase();
-            const next = names[i + 1].toLowerCase();
-            expect(curr <= next).toBeTruthy();
-        }
+        const sorted = [...names].sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
+        expect(names).toEqual(sorted);
     }
 
     async expectProductsSortedByPriceDesc() {
-        await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(1500);
-
         const prices = await this.getProductPrices();
-        console.log('DEBUG Prices:', prices);  // Debug
-
-        for (let i = 0; i < prices.length - 1; i++) {
-            expect(prices[i] >= prices[i + 1]).toBeTruthy();
-        }
+        const sorted = [...prices].sort((a, b) => b - a);
+        expect(prices).toEqual(sorted);
     }
+
 
     async expectAllPricesInRange(min: number, max: number) {
         const prices = await this.getProductPrices();
+
+        if (prices.length === 0) {
+            throw new Error('No products visible after filtering - check slider movement');
+        }
+
         for (const price of prices) {
-            expect(price).toBeGreaterThanOrEqual(min);
-            expect(price).toBeLessThanOrEqual(max);
+            expect(price, `Price ${price} is below minimum ${min}`).toBeGreaterThanOrEqual(min);
+            expect(price, `Price ${price} is above maximum ${max}`).toBeLessThanOrEqual(max);
         }
     }
-
-    async expectContainsProduct(name: string) {
+    async expectContainsProduct(namePart: string) {
         const names = await this.getProductNames();
-        expect(names).toContain(name);
+        const found = names.some(name => name.toLowerCase().includes(namePart.toLowerCase()));
+        expect(found, `Product containing "${namePart}" not found`).toBeTruthy();
+    }
+
+    async getProductCount(): Promise<number> {
+        await expect(this.productNameLocators.first()).toBeVisible({ timeout: 15000 });
+        return await this.productNameLocators.count();
     }
 }

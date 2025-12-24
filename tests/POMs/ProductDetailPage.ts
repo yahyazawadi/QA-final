@@ -1,4 +1,3 @@
-// pages/ProductDetailPage.ts
 import { Page, Locator, expect } from '@playwright/test';
 
 export class ProductDetailPage {
@@ -15,7 +14,6 @@ export class ProductDetailPage {
     }
 
     async setQuantity(quantity: number) {
-        // Click increase button (quantity - 1) times since default is 1
         for (let i = 1; i < quantity; i++) {
             await this.increaseQuantityButton.click();
         }

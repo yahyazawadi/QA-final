@@ -3,7 +3,7 @@ import { Page, Locator, expect } from '@playwright/test';
 export class CartPage {
     readonly page: Page;
     readonly removeButton: Locator;
-    readonly emptyCartMessage: Locator;  // More reliable than toast
+    readonly emptyCartMessage: Locator;
 
     constructor(page: Page) {
         this.page = page;

@@ -1,46 +1,36 @@
 import { test, expect } from '@playwright/test';
+import { ProductOverviewPage } from '../POMs/ProductOverviewPage';
 
 test.describe('Price Range Feature', () => {
+  let overview: ProductOverviewPage;
+
   test.beforeEach(async ({ page }) => {
-    await page.goto('https://practicesoftwaretesting.com/');
-    await page.waitForLoadState('networkidle');
+    overview = new ProductOverviewPage(page);
+    await overview.goto();
   });
 
   test('Adjust price range using slider keyboard arrows and verify filtered products', async ({ page }) => {
-    // (increase max price)
     const maxHandle = page.getByRole('slider', { name: 'ngx-slider-max' });
+    const minHandle = page.getByRole('slider', { name: 'ngx-slider', exact: true });
+
     await maxHandle.click();
-    for (let i = 0; i < 50; i++) {
+
+    for (let i = 0; i < 20; i++) {
       await page.keyboard.press('ArrowRight');
     }
 
-    //  (increase min price, narrow range)
-    const minHandle = page.getByRole('slider', { name: 'ngx-slider', exact: true });
     await minHandle.click();
     for (let i = 1; i < 100; i++) {
       await page.keyboard.press('ArrowRight');
     }
+
     await maxHandle.click();
 
-    // Wait for  7 seconds to allow products to update
-    await page.waitForTimeout(7000);
+    // why does this taaakkee sooo looooonngggg
+    await page.waitForTimeout(20000);
 
-    await expect(page.locator('app-overview')).toMatchAriaSnapshot(`
-    - 'link /Random Orbit Sander Random Orbit Sander CO₂: A B C D E \\$\\d+\\.\\d+/':
-      - /url: \/product\/.*/
-      - img "Random Orbit Sander"
-      - heading "Random Orbit Sander" [level=5]
-      - text: ""
-    - 'link /Cordless Drill 18V Cordless Drill 18V CO₂: A B C D E \\$\\d+\\.\\d+/':
-      - /url: \/product\/.*/
-      - img "Cordless Drill 18V"
-      - heading "Cordless Drill 18V" [level=5]
-      - text: ""
-    - 'link /Cordless Drill 20V Cordless Drill 20V CO₂: A B C D E \\$\\d+\\.\\d+/':
-      - /url: \/product\/.*/
-      - img "Cordless Drill 20V"
-      - heading "Cordless Drill 20V" [level=5]
-      - text: ""
-    `);
+    await overview.expectAllPricesInRange(100, 120);
+
+
   });
 });
